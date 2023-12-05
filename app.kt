@@ -1,10 +1,12 @@
-package com.bälls.balllist
+package com.wojaksoftware.balllist
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -30,7 +33,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
@@ -99,13 +104,16 @@ fun MainLayout() {
             ),
         )
 
+        val context = LocalContext.current
+
         var nameList by remember { mutableStateOf(listOf<String>()) }
 
         Button(onClick = {
             if (nameInput != "") {
                 nameList = nameList + nameInput
-                nameInput = ""
                 keyboardController?.hide()
+                Toast.makeText(context, nameInput + " hinzugefügt", Toast.LENGTH_LONG).show()
+                nameInput = ""
             }},
             colors = ButtonDefaults.buttonColors(contentColor = Color.DarkGray)) {
             Text(text = "Add Name", color = Color.White)
@@ -123,11 +131,30 @@ fun MainLayout() {
                         .fillMaxWidth(0.9f)
                         .padding(10.dp)
                 ) {
-                    Text(
-                        text = nameList[index],
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = androidx.compose.ui.Modifier.padding(16.dp)
-                    )
+                    Row (
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ){
+                        Text(
+                            text = nameList[index],
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = androidx.compose.ui.Modifier
+                                .padding(16.dp)
+                                .weight(0.9f)
+                        )
+                        Button(onClick = {
+                            Toast.makeText(context, nameList[index] + " gelöscht", Toast.LENGTH_LONG).show()
+                            nameList = nameList.toMutableList().apply { removeAt(index) }
+                         },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.Transparent,
+                                contentColor = Color.Black
+                            )) {
+                            Icon(imageVector = Icons.Default.Delete,
+                                contentDescription = "Delete")
+                        }
+                    }
                 }
             }
         })
